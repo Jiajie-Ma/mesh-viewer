@@ -38,6 +38,17 @@ namespace agl {
       // face indices in this model
       unsigned int* indices() const;
 
+      // free all memories for member variables
+      void clear();
+
+   protected:
+      int v; // number of vertices
+      int f; // number of faces/polygons
+      float* _vertices; // list of vertices
+      float* _normals; // list of normals
+      unsigned int* _faces; // list of faces
+      glm::vec3 minpos; // minimum values of x, y, and z
+      glm::vec3 maxpos; // maximum values of x, y, and z
    };
 }
 

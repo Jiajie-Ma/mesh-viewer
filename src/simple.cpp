@@ -11,6 +11,11 @@
 using namespace std;
 using namespace glm;
 
+const float cameraSpeed = 0.25f;
+float lastX, lastY, dist, azimuth, elevation;
+bool control = false, zoom = false;
+glm::vec3 lookfrom;
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -37,22 +42,61 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
    double xpos, ypos;
    glfwGetCursorPos(window, &xpos, &ypos);
 
-   // TODO: CAmera controls
-
    int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
    if (state == GLFW_PRESS)
    {
-       int keyPress = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
-       if (keyPress == GLFW_PRESS) {}
+      control = true;
+      int keyPress = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
+      if (keyPress == GLFW_PRESS) {
+         zoom = true;
+      }
+
    }
    else if (state == GLFW_RELEASE)
    {
+      control = false;
+      zoom = false;
    }
 }
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-   // TODO: CAmera controls
+   if (control)
+   {
+      // zoom in/out with shift and cursor
+      if (zoom){
+         float distDelta = ypos - lastY;
+         
+         distDelta *= cameraSpeed;
+
+         dist += distDelta;
+
+         if (dist < 1.0f){
+            dist = 1.0f;
+         }
+      }
+      else{
+         // rotate with cursor
+         float xDelta = lastX - xpos;
+         float yDelta = ypos - lastY;
+
+         xDelta *= cameraSpeed;
+         yDelta *= cameraSpeed;
+
+         azimuth += xDelta;
+         elevation += yDelta;
+
+         if(elevation > 89.9f){
+            elevation = 89.9f;
+         }   
+         else if(elevation < -89.9f){
+            elevation = -89.9f;
+         }   
+      }
+   }
+
+   lastX = xpos;
+   lastY = ypos;
 }
 
 static void PrintShaderErrors(GLuint id, const std::string label)
@@ -133,22 +177,34 @@ int main(int argc, char** argv)
    {
       1.0, -1.0, 0.5,
      -1.0, -1.0, 0.5,
-      0.0, 1.0,  0.5
+      0.0, 1.0,  0.5,
+      -1.0, -1.0, 0.5,
+      0.0, -1.0, -0.5,
+      0.0, 1.0, 0.5,
+      0.0, -1.0, -0.5,
+      1.0, -1.0, 0.5,
+      0.0, 1.0, 0.5
    };
 
    const float normals[] =
    {
       0.0f, 0.0f, 1.0f,
       0.0f, 0.0f, 1.0f,
-      0.0f, 0.0f, 1.0f
+      0.0f, 0.0f, 1.0f,
+      0.67f, -0.33f, 0.67f,
+      0.67f, -0.33f, 0.67f,
+      0.67f, -0.33f, 0.67f,
+      -0.67f, -0.33f, 0.67f,
+      -0.67f, -0.33f, 0.67f,
+      -0.67f, -0.33f, 0.67f
    };
 
    const unsigned int indices[] =
    {
-      0, 1, 2
+      0, 1, 2, 3, 4, 5, 6, 7, 8
    };
 
-   int numTriangles = 1;
+   int numTriangles = 3;
 
    GLuint vboPosId;
    glGenBuffers(1, &vboPosId);
@@ -215,10 +271,29 @@ int main(int argc, char** argv)
 
    glUseProgram(shaderId);
 
+   // set up the viewer
+   GLuint matrixParam = glGetUniformLocation(shaderId, "mvp");
+   glm::mat4 transform(1.0); // initialize to identity
+   glm::mat4 projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 10.0f);
+   dist = 3.0f;
+   lookfrom = glm::vec3(0, 0, 3.0f);
+   azimuth = 0;
+   elevation = 0;
+   lastX = 250.0f;
+   lastY = 250.0f;
+
    // Loop until the user closes the window 
    while (!glfwWindowShouldClose(window))
    {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the buffers
+
+      // enable camera control
+      lookfrom.x = dist * sin(glm::radians(azimuth)) * cos(glm::radians(elevation));
+      lookfrom.z = dist * cos(glm::radians(azimuth)) * cos(glm::radians(elevation));
+      lookfrom.y = dist * sin(glm::radians(elevation));
+      glm::mat4 camera = glm::lookAt(lookfrom, glm::vec3(0,0,0), glm::vec3(0,1.0f,0));
+      glm::mat4 mvp = projection * camera * transform;
+      glUniformMatrix4fv(matrixParam, 1, GL_FALSE, &mvp[0][0]);
 
       // Draw primitive
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
