@@ -1,5 +1,5 @@
 // Bryn Mawr College, alinen, 2020
-//
+// Haverford College, Jiajie Ma, 2021
 
 #include "AGL.h"
 #include "AGLM.h"
@@ -300,7 +300,6 @@ int main(int argc, char** argv)
    GLuint mvId = glGetUniformLocation(shaderId, "ModelViewMatrix");
    GLuint nmvId = glGetUniformLocation(shaderId, "NormalMatrix");
    dist = 3.0f;
-   lookfrom = glm::vec3(0, 0, 3.0f);
    azimuth = 0;
    elevation = 0;
    lastX = 250.0f;
@@ -317,12 +316,12 @@ int main(int argc, char** argv)
       glm::vec3 minpos = theModel.getMinBounds();
       glm::vec3 maxpos = theModel.getMaxBounds();
       glm::vec3 center = 0.5f * (maxpos + minpos);
-      glm::mat4 translation = glm::translate(glm::mat4(), -center);
+      glm::mat4 translation = glm::translate(glm::mat4(1), -center);
       float xsize = maxpos[0]-minpos[0];
       float ysize = maxpos[1]-minpos[1];
       float zsize = maxpos[2]-minpos[2];
       float scalefactor = std::min(2.0f/xsize, std::min(2.0f/ysize, 2.0f/zsize));
-      glm::mat4 scalematrix = glm::scale(glm::mat4(), glm::vec3(scalefactor));
+      glm::mat4 scalematrix = glm::scale(glm::mat4(1), glm::vec3(scalefactor));
       transform = scalematrix * translation;
 
       lookfrom.x = dist * sin(glm::radians(azimuth)) * cos(glm::radians(elevation));

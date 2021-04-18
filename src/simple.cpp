@@ -1,5 +1,5 @@
 // Bryn Mawr College, alinen, 2020
-//
+// Haverford College, Jiajie Ma, 2021
 
 #include "AGL.h"
 #include "AGLM.h"

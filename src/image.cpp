@@ -62,6 +62,8 @@ bool Image::load(const std::string& filename)
    myData = (Pixel*) stbi_load(filename.c_str(), &x, &y, &n, 0);
    myWidth = x;
    myHeight = y;
+   std::cout << myWidth << std::endl;
+   std::cout << myHeight << std::endl;
    myLoaded = true;
    return (myData != NULL);
 }

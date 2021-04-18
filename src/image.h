@@ -6,7 +6,7 @@
 #include "AGLM.h"
 
 // This is a placeholder class
-// Feel free to replace this clas with your own image class
+// Feel free to replace this class with your own image class
 namespace agl
 {
     struct Pixel
