@@ -17,6 +17,9 @@ namespace agl {
       // Returns true if successfull. false otherwise.
       bool loadPLY(const std::string& filename);
 
+      // load a specific .ply file that contains color information (instead of normals)
+      bool loadwithColor(const std::string& filename);
+
       // Return the minimum point of the axis-aligned bounding box
       glm::vec3 getMinBounds() const;
 
@@ -32,6 +35,9 @@ namespace agl {
       // Normals in this model
       float* normals() const;
 
+      // Colors in this model
+      float* colors() const;
+
       // Return number of faces in this model
       int numTriangles() const;
 
@@ -46,6 +52,7 @@ namespace agl {
       int f; // number of faces/polygons
       float* _vertices; // list of vertices
       float* _normals; // list of normals
+      float* _colors; // list of colors
       unsigned int* _faces; // list of faces
       glm::vec3 minpos; // minimum values of x, y, and z
       glm::vec3 maxpos; // maximum values of x, y, and z

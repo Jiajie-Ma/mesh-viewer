@@ -88,8 +88,12 @@ set(SHADERS
     shaders/phong.vs
     shaders/unlit.fs
     shaders/unlit.vs
-    shaders/demo.fs
-    shaders/demo.vs)
+    shaders/toon.fs
+    shaders/toon.vs
+    shaders/spotlight.fs
+    shaders/spotlight.vs
+    shaders/color.fs
+    shaders/color.vs)
 
 add_executable(simple-mesh src/simple.cpp ${SOURCES} ${SHADERS})
 target_link_libraries(simple-mesh ${CORE})
@@ -99,4 +103,7 @@ target_link_libraries(mesh-viewer ${CORE})
 
 add_executable(mesh-demo src/meshdemo.cpp ${SOURCES} ${SHADERS})
 target_link_libraries(mesh-demo ${CORE})
+
+add_executable(color-demo src/colordemo.cpp ${SOURCES} ${SHADERS})
+target_link_libraries(color-demo ${CORE})
 

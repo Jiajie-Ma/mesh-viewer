@@ -28,11 +28,12 @@ glm::vec3 lookfrom;
 GLuint theVboPosId;
 GLuint theVboNormalId;
 GLuint theElementbuffer;
+GLuint theVboColorId;
 
 static void LoadModel(int modelId)
 {
    assert(modelId >= 0 && modelId < theModelNames.size());
-   theModel.loadPLY(theModelNames[theCurrentModel]);
+   theModel.loadwithColor(theModelNames[theCurrentModel]);
 
    glBindBuffer(GL_ARRAY_BUFFER, theVboPosId);
    glBufferData(GL_ARRAY_BUFFER, theModel.numVertices() * 3 * sizeof(float), theModel.positions(), GL_DYNAMIC_DRAW);
@@ -42,6 +43,9 @@ static void LoadModel(int modelId)
 
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theElementbuffer);
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, theModel.numTriangles() * 3 * sizeof(unsigned int), theModel.indices(), GL_DYNAMIC_DRAW);
+
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theVboColorId);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, theModel.numVertices() * 3 * sizeof(float), theModel.colors(), GL_DYNAMIC_DRAW);
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -151,14 +155,11 @@ static std::string LoadShaderFromFile(const std::string& fileName)
 
 static void LoadModels(const std::string& dir)
 {
-   std::vector<std::string> filenames = GetFilenamesInDir(dir, "ply");
+   std::vector<std::string> filenames = GetFilenamesInDir(dir, "color.ply");
    for (int i = 0; i < filenames.size(); i++)
    {
       std::string filename = filenames[i];
       theModelNames.push_back(dir+filename);
-      colors.push_back(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
-      colors.push_back(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
-      colors.push_back(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
    }
 }
 
@@ -279,6 +280,7 @@ int main(int argc, char** argv)
 
    glGenBuffers(1, &theVboPosId);
    glGenBuffers(1, &theVboNormalId);
+   glGenBuffers(1, &theVboColorId);
    glGenBuffers(1, &theElementbuffer);
 
    GLuint vaoId;
@@ -292,12 +294,15 @@ int main(int argc, char** argv)
    glEnableVertexAttribArray(1); // 1 -> Sending Normals to array #1 in the active shader
    glBindBuffer(GL_ARRAY_BUFFER, theVboNormalId); // always bind before setting data
    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL);
+   
+   glEnableVertexAttribArray(2); // 2 -> Sending Colors to array #2 in the active shader
+   glBindBuffer(GL_ARRAY_BUFFER, theVboColorId); // always bind before setting data
+   glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL);
 
    LoadModels("../models/");
    LoadModel(0);
 
-   // switch among the shaders here
-   GLuint shaderId = LoadShader("../shaders/spotlight.vs", "../shaders/spotlight.fs");
+   GLuint shaderId = LoadShader("../shaders/color.vs", "../shaders/color.fs");
    glUseProgram(shaderId);
 
    // set up the viewer
@@ -327,13 +332,8 @@ int main(int argc, char** argv)
       float zsize = maxpos[2]-minpos[2];
       float scalefactor = std::min(2.0f/xsize, std::min(2.0f/ysize, 2.0f/zsize));
       glm::mat4 scalematrix = glm::scale(glm::mat4(1), glm::vec3(scalefactor));
-      if (theModelNames[theCurrentModel] == "../models/pikachu_color.ply" || theModelNames[theCurrentModel] == "../models/saratoga.ply"){
-         glm::mat4 rotate = glm::rotate(glm::mat4(1), radians(-90.0f), glm::vec3(1, 0, 0));
-         transform = rotate * scalematrix * translation;
-      }
-      else{
-         transform = scalematrix * translation;
-      }
+      glm::mat4 rotate = glm::rotate(glm::mat4(1), radians(-90.0f), glm::vec3(1, 0, 0));
+      transform = rotate * scalematrix * translation;
 
       lookfrom.x = dist * sin(glm::radians(azimuth)) * cos(glm::radians(elevation));
       lookfrom.z = dist * cos(glm::radians(azimuth)) * cos(glm::radians(elevation));
@@ -345,25 +345,6 @@ int main(int argc, char** argv)
       glUniformMatrix3fv(nmvId, 1, GL_FALSE, &nmv[0][0]);
       glUniformMatrix4fv(mvId, 1, GL_FALSE, &mv[0][0]);
       glUniformMatrix4fv(mvpId, 1, GL_FALSE, &mvp[0][0]);
-
-      /*
-      // uniform variables for toon shading
-      glUniform3f(glGetUniformLocation(shaderId, "Kd"), colors[3*theCurrentModel], colors[3*theCurrentModel + 1], colors[3*theCurrentModel + 2]); //140.0f/255.0f, 247.0f/255.0f, 0.0f/255.0f
-      glUniform3f(glGetUniformLocation(shaderId, "Ka"), 0.1f, 0.1f, 0.1f);
-      glUniform4f(glGetUniformLocation(shaderId, "Light.position"), 10.0f, 10.0f, 10.0f, 1.0f);
-      glUniform3f(glGetUniformLocation(shaderId, "Light.color"), 1.0f, 1.0f, 1.0f);
-      */
-
-      glUniform3f(glGetUniformLocation(shaderId, "Ks"), 1.0f, 1.0f, 1.0f);
-      glUniform3f(glGetUniformLocation(shaderId, "Kd"), colors[3*theCurrentModel], colors[3*theCurrentModel + 1], colors[3*theCurrentModel + 2]); //186.0f/255.0f, 155.0f/255.0f, 255.0f/255.0f
-      glUniform3f(glGetUniformLocation(shaderId, "Ka"), 0.1f, 0.1f, 0.1f);
-      glUniform1f(glGetUniformLocation(shaderId, "Shininess"), 80.0f);
-      glUniform4f(glGetUniformLocation(shaderId, "Spot.position"), 100.0f, 0.0f, 0.0f, 1.0f);
-      glUniform3f(glGetUniformLocation(shaderId, "Spot.intensity"), 1.0f,1.0f,1.0f);
-      glUniform3f(glGetUniformLocation(shaderId, "Spot.direction"), -1.0f, 0.0f, 0.0f);
-      glUniform1f(glGetUniformLocation(shaderId, "Spot.cutoff"), 10.0f);
-      glUniform1f(glGetUniformLocation(shaderId, "Spot.exponent"), 90.0f);
-
 
       // Draw primitive
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theElementbuffer);
