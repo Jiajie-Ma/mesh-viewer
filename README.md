@@ -69,7 +69,7 @@ mesh-viewer/build $ ../bin/mesh-viewer
 
 ![Toon shading cow with different color](results/cowtoon2.png)
 
-![Toon shading pikachu](results/pikachu.png)
+![Toon shading pikachu](results/pikachucartoon.png)
 
 *Spotlight Effect*
 
