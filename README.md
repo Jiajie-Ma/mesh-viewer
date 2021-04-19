@@ -69,6 +69,8 @@ mesh-viewer/build $ ../bin/mesh-viewer
 
 ![Toon shading cow with different color](results/cowtoon2.png)
 
+The following pikachu model is created by ngokevin at https://github.com/matrix-org/kframe/blob/master/scenes/pokemon/models/pikachu.ply
+
 ![Toon shading pikachu](results/pikachucartoon.png)
 
 *Spotlight Effect*
