@@ -297,7 +297,7 @@ int main(int argc, char** argv)
    LoadModel(0);
 
    // switch among the shaders here
-   GLuint shaderId = LoadShader("../shaders/spotlight.vs", "../shaders/spotlight.fs");
+   GLuint shaderId = LoadShader("../shaders/toon.vs", "../shaders/toon.fs");
    glUseProgram(shaderId);
 
    // set up the viewer
@@ -346,23 +346,25 @@ int main(int argc, char** argv)
       glUniformMatrix4fv(mvId, 1, GL_FALSE, &mv[0][0]);
       glUniformMatrix4fv(mvpId, 1, GL_FALSE, &mvp[0][0]);
 
-      /*
+      
       // uniform variables for toon shading
       glUniform3f(glGetUniformLocation(shaderId, "Kd"), colors[3*theCurrentModel], colors[3*theCurrentModel + 1], colors[3*theCurrentModel + 2]); //140.0f/255.0f, 247.0f/255.0f, 0.0f/255.0f
       glUniform3f(glGetUniformLocation(shaderId, "Ka"), 0.1f, 0.1f, 0.1f);
       glUniform4f(glGetUniformLocation(shaderId, "Light.position"), 10.0f, 10.0f, 10.0f, 1.0f);
       glUniform3f(glGetUniformLocation(shaderId, "Light.color"), 1.0f, 1.0f, 1.0f);
-      */
+      
 
+      /*
       glUniform3f(glGetUniformLocation(shaderId, "Ks"), 1.0f, 1.0f, 1.0f);
       glUniform3f(glGetUniformLocation(shaderId, "Kd"), colors[3*theCurrentModel], colors[3*theCurrentModel + 1], colors[3*theCurrentModel + 2]); //186.0f/255.0f, 155.0f/255.0f, 255.0f/255.0f
       glUniform3f(glGetUniformLocation(shaderId, "Ka"), 0.1f, 0.1f, 0.1f);
       glUniform1f(glGetUniformLocation(shaderId, "Shininess"), 80.0f);
-      glUniform4f(glGetUniformLocation(shaderId, "Spot.position"), 100.0f, 0.0f, 0.0f, 1.0f);
+      glUniform4f(glGetUniformLocation(shaderId, "Spot.position"), 0.0f, 0.0f, 100.0f, 1.0f);
       glUniform3f(glGetUniformLocation(shaderId, "Spot.intensity"), 1.0f,1.0f,1.0f);
-      glUniform3f(glGetUniformLocation(shaderId, "Spot.direction"), -1.0f, 0.0f, 0.0f);
+      glUniform3f(glGetUniformLocation(shaderId, "Spot.direction"), 0.0f, 0.0f, -1.0f);
       glUniform1f(glGetUniformLocation(shaderId, "Spot.cutoff"), 10.0f);
       glUniform1f(glGetUniformLocation(shaderId, "Spot.exponent"), 90.0f);
+      */
 
 
       // Draw primitive
